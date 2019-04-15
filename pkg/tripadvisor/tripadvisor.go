@@ -30,6 +30,7 @@ type tripadvisor struct {
 	key          string
 	languageCode string
 	endpoint     string
+	timeout      time.Duration
 	client       *http.Client
 }
 
@@ -42,12 +43,13 @@ func New(opts ...Option) *tripadvisor {
 	t := tripadvisor{
 		languageCode: "en_UK",
 		endpoint:     "https://api.tripadvisor.com/api/partner/2.0/",
+		timeout:      time.Second * 30,
 	}
 	for _, opt := range opts {
 		opt(&t)
 	}
 	t.client = &http.Client{
-		Timeout: time.Second * 30,
+		Timeout: t.timeout,
 	}
 	return &t
 }
@@ -79,6 +81,14 @@ func SetLanguageCode(code string) Option {
 func SetEndpoint(endpoint string) Option {
 	return func(t *tripadvisor) {
 		t.endpoint = endpoint
+	}
+}
+
+// SetTimeout Set the timeout of HTTP requests made to the
+// tripadvisor API.
+func SetTimeout(timeout time.Duration) Option {
+	return func(t *tripadvisor) {
+		t.timeout = timeout
 	}
 }
 
