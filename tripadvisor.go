@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mrbenosborne/tripadvisor-golang/pkg/tripadvisor/models"
+	"github.com/mrbenosborne/tripadvisor-golang/models"
 )
 
 var _ TripAdvisor = (*tripadvisor)(nil)

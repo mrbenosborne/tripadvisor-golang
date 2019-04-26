@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/mrbenosborne/tripadvisor-golang/pkg/tripadvisor"
+	"github.com/mrbenosborne/tripadvisor-golang"
 )
 
 func main() {
