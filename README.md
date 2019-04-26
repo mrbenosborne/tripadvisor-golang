@@ -3,6 +3,9 @@ A TripAdvisor API wrapper for Golang.
 
 [![Build Status](https://travis-ci.org/mrbenosborne/tripadvisor-golang.svg?branch=master)](https://travis-ci.org/mrbenosborne/tripadvisor-golang) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Go Report Card](https://goreportcard.com/badge/github.com/mrbenosborne/tripadvisor-golang)](https://goreportcard.com/report/github.com/mrbenosborne/tripadvisor-golang)
 
+## Godoc
+Godoc reference is available [here](https://godoc.org/github.com/mrbenosborne/tripadvisor-golang).
+
 ## Installation
 ```
 go get "github.com/mrbenosborne/tripadvisor-golang"
