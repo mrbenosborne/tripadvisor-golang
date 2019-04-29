@@ -1,5 +1,6 @@
 package models
 
+// LocationResponse a response for a Location search.
 type LocationResponse struct {
 	Name               string            `json:"name,omitempty"`
 	NumReviews         string            `json:"num_reviews,omitempty"`
@@ -25,6 +26,7 @@ type LocationResponse struct {
 	SeeAllPhotos       string            `json:"see_all_photos,omitempty"`
 }
 
+// Address provides address details for the relevant location
 type Address struct {
 	Street1     string `json:"street1,omitempty"`
 	Street2     string `json:"street2,omitempty"`
@@ -35,12 +37,14 @@ type Address struct {
 	FullAddress string `json:"address_string,omitempty"`
 }
 
+// TripType some information about a trip type
 type TripType struct {
 	Name          string `json:"name,omitempty"`
 	Value         string `json:"value,omitempty"`
 	LocalizedName string `json:"localized_name,omitempty"`
 }
 
+// Review information about a single review
 type Review struct {
 	ID             string `json:"id,omitempty"`
 	LanguageCode   string `json:"lang,omitempty"`
@@ -57,16 +61,19 @@ type Review struct {
 	Title          string `json:"title,omitempty"`
 }
 
+// User information about the user who wrote the review
 type User struct {
 	Username     string        `json:"username,omitempty"`
 	UserLocation *UserLocation `json:"user_location,omitempty"`
 }
 
+// UserLocation information about a user's location.
 type UserLocation struct {
 	Name string `json:"name,omitempty"`
 	ID   string `json:"id,omitempty"`
 }
 
+// Ancestor .
 type Ancestor struct {
 	Abbrv      string `json:"abbrv,omitempty"`
 	Level      string `json:"level,omitempty"`
@@ -74,6 +81,7 @@ type Ancestor struct {
 	LocationID string `json:"location_id,omitempty"`
 }
 
+// Award information about an award
 type Award struct {
 	AwardType   string            `json:"award_type,omitempty"`
 	Year        string            `json:"year,omitempty"`
@@ -82,6 +90,7 @@ type Award struct {
 	DisplayName string            `json:"display_name,omitempty"`
 }
 
+// Category information about a category
 type Category struct {
 	Name          string `json:"name,omitempty"`
 	LocalizedName string `json:"localized_name,omitempty"`

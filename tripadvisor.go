@@ -12,16 +12,21 @@ import (
 
 var _ TripAdvisor = (*tripadvisor)(nil)
 
+// TripAdvisor an interface for TripAdvisor
 type TripAdvisor interface {
+	Location
 }
 
 type (
+	// Location An interface to access location functions
 	Location interface {
 		Location(ctx context.Context, locationID int) (*models.LocationResponse, error)
 	}
+	// LocationFunc ...
 	LocationFunc func(ctx context.Context, locationID int) (*models.LocationResponse, error)
 )
 
+// Location Search for a location based on a LocationID
 func (f LocationFunc) Location(ctx context.Context, locationID int) (*models.LocationResponse, error) {
 	return f(ctx, locationID)
 }
@@ -34,6 +39,7 @@ type tripadvisor struct {
 	client       *http.Client
 }
 
+// Option Set an option such as your TripAdvisor key.
 type Option func(*tripadvisor)
 
 // New Create a new tripadvisor instance.
