@@ -10,10 +10,10 @@ import (
 	"github.com/mrbenosborne/tripadvisor-golang/models"
 )
 
-var _ TripAdvisor = (*tripadvisor)(nil)
+var _ TripAdvisorAPI = (*TripAdvisor)(nil)
 
-// TripAdvisor an interface for TripAdvisor
-type TripAdvisor interface {
+// TripAdvisorAPI is an interface for the TripAdvisor API.
+type TripAdvisorAPI interface {
 	Location
 }
 
@@ -31,7 +31,7 @@ func (f LocationFunc) Location(ctx context.Context, locationID int) (*models.Loc
 	return f(ctx, locationID)
 }
 
-type tripadvisor struct {
+type TripAdvisor struct {
 	key          string
 	languageCode string
 	endpoint     string
@@ -40,13 +40,13 @@ type tripadvisor struct {
 }
 
 // Option Set an option such as your TripAdvisor key.
-type Option func(*tripadvisor)
+type Option func(*TripAdvisor)
 
 // New Create a new tripadvisor instance.
 //
 // Default Endpoint is: https://api.tripadvisor.com/api/partner/2.0/", you can change this vie SetEndpoint()
-func New(opts ...Option) *tripadvisor {
-	t := tripadvisor{
+func New(opts ...Option) *TripAdvisor {
+	t := TripAdvisor{
 		languageCode: "en_UK",
 		endpoint:     "https://api.tripadvisor.com/api/partner/2.0/",
 		timeout:      time.Second * 30,
@@ -65,7 +65,7 @@ func New(opts ...Option) *tripadvisor {
 // Request a key if you do not have one at the TripAdvisor website
 // found here: https://developer-tripadvisor.com/content-api/request-api-access/
 func SetKey(key string) Option {
-	return func(t *tripadvisor) {
+	return func(t *TripAdvisor) {
 		t.key = key
 	}
 }
@@ -74,7 +74,7 @@ func SetKey(key string) Option {
 // Default: en_UK
 // A full list can be found here: https://developer-tripadvisor.com/content-api/supported-languages/
 func SetLanguageCode(code string) Option {
-	return func(t *tripadvisor) {
+	return func(t *TripAdvisor) {
 		t.languageCode = code
 	}
 }
@@ -85,7 +85,7 @@ func SetLanguageCode(code string) Option {
 // Change at your own risk, newer versions or any version older than 2.0 is not currently
 // supported.
 func SetEndpoint(endpoint string) Option {
-	return func(t *tripadvisor) {
+	return func(t *TripAdvisor) {
 		t.endpoint = endpoint
 	}
 }
@@ -93,13 +93,13 @@ func SetEndpoint(endpoint string) Option {
 // SetTimeout Set the timeout of HTTP requests made to the
 // tripadvisor API.
 func SetTimeout(timeout time.Duration) Option {
-	return func(t *tripadvisor) {
+	return func(t *TripAdvisor) {
 		t.timeout = timeout
 	}
 }
 
 // Location Search for a location based on a LocationID
-func (t *tripadvisor) Location(ctx context.Context, locationID int) (*models.LocationResponse, error) {
+func (t *TripAdvisor) Location(ctx context.Context, locationID int) (*models.LocationResponse, error) {
 	req, err := http.NewRequest(http.MethodGet, t.endpoint+"location/"+strconv.Itoa(locationID)+"?key="+t.key, nil)
 	if err != nil {
 		return nil, err
