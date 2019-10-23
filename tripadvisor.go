@@ -3,11 +3,13 @@ package tripadvisor
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/mrbenosborne/tripadvisor-golang/models"
+	"github.com/mercury-holidays/tripadvisor-golang/models"
 )
 
 var _ TripAdvisorAPI = (*TripAdvisor)(nil)
@@ -21,14 +23,21 @@ type (
 	// Location An interface to access location functions
 	Location interface {
 		Location(ctx context.Context, locationID int) (*models.LocationResponse, error)
+		Reviews(ctx context.Context, locationID int) (*models.ReviewResponse, error)
 	}
-	// LocationFunc ...
+
 	LocationFunc func(ctx context.Context, locationID int) (*models.LocationResponse, error)
+	ReviewsFunc  func(ctx context.Context, locationID int) (*models.ReviewResponse, error)
 )
 
 // Location Search for a location based on a LocationID
 func (f LocationFunc) Location(ctx context.Context, locationID int) (*models.LocationResponse, error) {
 	return f(ctx, locationID)
+}
+
+// Reviews for a location based on a LocationID
+func (r ReviewsFunc) Reviews(ctx context.Context, locationID int) (*models.ReviewResponse, error) {
+	return r(ctx, locationID)
 }
 
 type TripAdvisor struct {
@@ -100,22 +109,64 @@ func SetTimeout(timeout time.Duration) Option {
 
 // Location Search for a location based on a LocationID
 func (t *TripAdvisor) Location(ctx context.Context, locationID int) (*models.LocationResponse, error) {
-	req, err := http.NewRequest(http.MethodGet, t.endpoint+"location/"+strconv.Itoa(locationID)+"?key="+t.key, nil)
-	if err != nil {
+	var resp models.LocationResponse
+	url := t.endpoint + "location/" + strconv.Itoa(locationID) + "?key=" + t.key
+	if err := t.callAPI(ctx, url, locationID, &resp); err != nil {
 		return nil, err
 	}
+	return &resp, nil
+}
+
+// Reviews returns the 'Reviews' for the given location.
+func (t *TripAdvisor) Reviews(ctx context.Context, locationID int) (*models.ReviewResponse, error) {
+	var resp models.ReviewResponse
+	url := t.endpoint + "location/" + strconv.Itoa(locationID) + "/reviews?key=" + t.key
+	if err := t.callAPI(ctx, url, locationID, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// ErrorResponse represents an error returned by the API, i.e. a non-HTTP 200.
+type ErrorResponse struct {
+	ErrorType struct {
+		Code    string `json:"code"`
+		Type    string `json:"type"`
+		Message string `json:"message"`
+	} `json:"error"`
+	Response *http.Response `json:"-"` // HTTP response that caused this error
+}
+
+func (r *ErrorResponse) Error() string {
+	return fmt.Sprintf("code: %v, type: %v, message: %v,  http status code: %v", r.ErrorType.Code, r.ErrorType.Type, r.ErrorType.Message, r.Response.StatusCode)
+}
+
+func (t *TripAdvisor) callAPI(ctx context.Context, url string, locationID int, resp interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+
 	httpResponse, err := t.client.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer httpResponse.Body.Close()
 
+	if c := httpResponse.StatusCode; c < 200 || c > 299 {
+		errorResponse := &ErrorResponse{Response: httpResponse}
+		data, err := ioutil.ReadAll(httpResponse.Body)
+		if err == nil && data != nil {
+			json.Unmarshal(data, errorResponse)
+		}
+		return errorResponse
+	}
+
 	// decode response
 	decoder := json.NewDecoder(httpResponse.Body)
-	response := models.LocationResponse{}
-	err = decoder.Decode(&response)
+	err = decoder.Decode(&resp)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &response, nil
+	return nil
 }
